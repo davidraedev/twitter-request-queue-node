@@ -15,14 +15,15 @@ const TwitterRequestQueue = require( "twitter-request-queue-node" );
 const queue = new TwitterRequestQueue({
 	consumer_key: "key",
 	consumer_secret: "secret",
-	bearer_token: "bearer_token,
+	bearer_token: "bearer_token",
 });
 
 // User Auth
 const queue = new TwitterRequestQueue({
 	consumer_key: "key",
 	consumer_secret: "secret",
-	bearer_token: "bearer_token,
+	access_token_key: "user_key",
+	access_token_secret: "user_secret",
 });
 
 // queue request
