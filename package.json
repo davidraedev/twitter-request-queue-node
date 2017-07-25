@@ -1,0 +1,19 @@
+{
+  "name": "twitter-request-queue-node",
+  "version": "1.0.0",
+  "description": "Twitter rate-limit smart queue",
+  "main": "index.js",
+  "author": "David Rae",
+  "license": "MIT",
+  "dependencies": {
+    "twitter": "^1.7.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/daraeman/twitter-request-queue-node.git"
+  },
+  "bugs": {
+    "url": "https://github.com/daraeman/twitter-request-queue-node/issues"
+  },
+  "homepage": "https://github.com/daraeman/twitter-request-queue-node#readme",
+}
