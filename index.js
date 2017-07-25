@@ -114,11 +114,23 @@ TwitterRequestQueue.prototype.processRequest = function( request ) {
 };
 
 TwitterRequestQueue.prototype.isLimited = function( endpoint ) {
-	if ( this.endpoints[ endpoint ] && ! this.endpoints[ endpoint ].remaining ) {
-		return {
-			limited: true,
-			reset_in_millis: ( +this.endpoints[ endpoint ].reset - +new Date() ),
-		};
+	if ( this.endpoints[ endpoint ] ) {
+		let reset_in_millis = ( +this.endpoints[ endpoint ].reset - +new Date() );
+
+		if ( reset_in_millis < 0 )
+			this.endpoints[ endpoint ].remaining = Math.max( 1, this.endpoints[ endpoint ].remaining );
+
+		if ( ! this.endpoints[ endpoint ].remaining ) {
+			return {
+				limited: true,
+				reset_in_millis: reset_in_millis,
+			};
+		}
+		else {
+			return {
+				limited: false,
+			};
+		}
 	}
 	else {
 		return {
