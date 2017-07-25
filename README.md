@@ -27,7 +27,6 @@ const queue = new TwitterRequestQueue({
 });
 
 // queue request
-
 queue.get( "help/privacy", null, ( error, data ) => {
 	if ( error )
 		return console.log( error );
