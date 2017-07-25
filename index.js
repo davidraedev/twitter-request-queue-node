@@ -1,24 +1,52 @@
 const Twitter = require( "twitter" );
 
-function TwitterRequestQueue( credentials ) {
+/*
+	TwitterRequestQueue
+
+		Implements a queue for twitter requests
+		that will automatically wait until the
+		appropriate time if a rate limit is hit.
+
+		Queue is processed in FIFO order, with
+		rate-limited endpoint requests being deferred
+		and non-limiited requests being processed.
+*/
+function TwitterRequestQueue( credentials, request_delay ) {
 	this.queue = [];
 	this.endpoints = {};
 	this.client = null;
 	if ( credentials )
 		this.setCredentials( credentials );
-	this.request_delay = 1000;
+	this.request_delay = request_delay || 50;
 	this.queue_started = false;
 	this.timeout = false;
 }
 
+/*
+	setCredentials
+		takes an object with a consumer key and secret,
+		and either a user token/secret, or a bearer token
+
+	User Auth
+	{
+		consumer_key: key,
+		consumer_secret: secret,
+		access_token_key: user_key,
+		access_token_secret: user_secret,
+	}
+
+	App Auth
+	{
+		consumer_key: key,
+		consumer_secret: secret,
+		bearer_token: bearer_token,
+	}
+*/
 TwitterRequestQueue.prototype.setCredentials = function( credentials ) {
 	this.client = new Twitter( credentials );
 };
 
 TwitterRequestQueue.prototype.parseResponse = function( response ) {
-	console.log( "limit >> ", response.headers[ "x-rate-limit-limit" ] );
-	console.log( "remaining >> ", response.headers[ "x-rate-limit-remaining" ] );
-	console.log( "reset >> ", new Date( response.headers[ "x-rate-limit-reset" ] * 1000 ) );
 	return {
 		limit: +response.headers[ "x-rate-limit-limit" ],
 		remaining: +response.headers[ "x-rate-limit-remaining" ],
@@ -35,6 +63,12 @@ TwitterRequestQueue.prototype.addToQueue = function( params ) {
 	this.processQueue();
 };
 
+/*
+	get
+		takes the twitter api endpoint,
+		any get params the request needs,
+		a callback with ( error, result ) arguments
+*/
 TwitterRequestQueue.prototype.get = function( endpoint, params, callback ) {
 	this.addToQueue({
 		type: "get",
@@ -44,6 +78,12 @@ TwitterRequestQueue.prototype.get = function( endpoint, params, callback ) {
 	});
 };
 
+/*
+	post
+		takes the twitter api endpoint,
+		any post params the request needs,
+		a callback with ( error, result ) arguments
+*/
 TwitterRequestQueue.prototype.post = function( endpoint, params, callback ) {
 	this.addToQueue({
 		type: "post",
@@ -141,19 +181,15 @@ TwitterRequestQueue.prototype.isLimited = function( endpoint ) {
 
 TwitterRequestQueue.prototype.processQueue = function() {
 	let self = this;
-	console.log( "self.queue.length =", self.queue.length );
 	if ( ! self.queue.length ) {
-		console.log( "Queue Finished" );
 		self.queue_started = false;
 		return;
 	}
 	if ( self.queue_started ) {
-		console.log( "Queue Already Started" );
 		return;
 	}
 	clearTimeout( self.timeout );
 	self.queue_started = true;
-	console.log( "Queue Started" );
 	let earliest_reset = Infinity;
 	let processing = false;
 	self.queue.forEach( ( request, index ) => {
@@ -167,9 +203,7 @@ TwitterRequestQueue.prototype.processQueue = function() {
 			processing = true;
 			self.processRequest( request )
 				.then(() => {
-					console.log( "Queue Wait" );
 					self.timeout = setTimeout( () => {
-						console.log( "Queue Callback" );
 						self.queue_started = false;
 						self.processQueue();
 					}, self.request_delay );
@@ -180,10 +214,8 @@ TwitterRequestQueue.prototype.processQueue = function() {
 		}
 	});
 	if ( ! processing ) {
-		console.log( "Queue Limited Ending" );
 		self.queue_started = false;
 		if ( earliest_reset < Infinity ) {
-			console.log( "Queue Set for next reset ("+ ( earliest_reset / 1000 / 60 ).toFixed(2) +"m)" );
 			self.timeout = setTimeout( () => {
 				self.processQueue();
 			}, earliest_reset );
