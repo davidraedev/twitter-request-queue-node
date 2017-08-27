@@ -5,6 +5,11 @@ Implements a queue for twitter requests that will automatically wait until the a
 
 Queue is processed in FIFO order, with rate-limited endpoint requests being deferred, and non-limiited requests being processed.
 
+## Installation
+```
+npm install twitter-request-queue-node
+```
+
 ## Usage
 This currently extends the [NPM Twitter package](https://github.com/desmondmorris/node-twitter), and takes the same constructor, .get, and .post methods
 
