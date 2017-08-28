@@ -1,4 +1,4 @@
-# twitter-request-queue-node
+# Twitter Request Queue (node)
 
 ## Smart request queue for Twitter rate-limiting
 Implements a queue for twitter requests that will automatically wait until the appropriate time if a rate limit is hit.
