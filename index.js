@@ -47,11 +47,20 @@ TwitterRequestQueue.prototype.setCredentials = function( credentials ) {
 };
 
 TwitterRequestQueue.prototype.parseResponse = function( response ) {
-	return {
-		limit: +response.headers[ "x-rate-limit-limit" ],
-		remaining: +response.headers[ "x-rate-limit-remaining" ],
-		reset: new Date( response.headers[ "x-rate-limit-reset" ] * 1000 ),
-	};
+	return new Promise( ( resolve, reject ) => {
+		let data;
+		try {
+			data = {
+				limit: +response.headers[ "x-rate-limit-limit" ],
+				remaining: +response.headers[ "x-rate-limit-remaining" ],
+				reset: new Date( response.headers[ "x-rate-limit-reset" ] * 1000 ),
+			};
+		} catch ( error ) {
+			return reject( error );
+		}
+
+		return resolve( data );
+	});
 };
 
 TwitterRequestQueue.prototype.saveResponse = function( endpoint, limits ) {
@@ -98,18 +107,30 @@ TwitterRequestQueue.prototype.processGet = function( endpoint, params, callback 
 	return new Promise( ( resolve ) => {
 		if ( params ) {
 			this.client.get( endpoint, params, ( error, tweets, response ) => {
-				let parsed_response = this.parseResponse( response );
-				this.saveResponse( endpoint, parsed_response );
-				callback( error, tweets, response );
-				resolve();
+				this.parseResponse( response )
+					.then( ( parsed_response ) => {
+						this.saveResponse( endpoint, parsed_response );
+						callback( error, tweets, response );
+						resolve();
+					})
+					.catch( ( parse_error ) => {
+						callback( [ error, parse_error ], tweets, response );
+						resolve();
+					});
 			});
 		}
 		else {
 			this.client.get( endpoint, ( error, tweets, response ) => {
-				let parsed_response = this.parseResponse( response );
-				this.saveResponse( endpoint, parsed_response );
-				callback( error, tweets, response );
-				resolve();
+				this.parseResponse( response )
+					.then( ( parsed_response ) => {
+						this.saveResponse( endpoint, parsed_response );
+						callback( error, tweets, response );
+						resolve();
+					})
+					.catch( ( parse_error ) => {
+						callback( [ error, parse_error ], tweets, response );
+						resolve();
+					});
 			});
 		}
 	});
@@ -120,18 +141,30 @@ TwitterRequestQueue.prototype.processPost = function( endpoint, params, callback
 	return new Promise( ( resolve ) => {
 		if ( params ) {
 			this.client.post( endpoint, params, ( error, tweets, response ) => {
-				let parsed_response = this.parseResponse( response );
-				this.saveResponse( endpoint, parsed_response );
-				callback( error, tweets, response );
-				resolve();
+				this.parseResponse( response )
+					.then( ( parsed_response ) => {
+						this.saveResponse( endpoint, parsed_response );
+						callback( error, tweets, response );
+						resolve();
+					})
+					.catch( ( parse_error ) => {
+						callback( [ error, parse_error ], tweets, response );
+						resolve();
+					});
 			});
 		}
 		else {
 			this.client.post( endpoint, ( error, tweets, response ) => {
-				let parsed_response = this.parseResponse( response );
-				this.saveResponse( endpoint, parsed_response );
-				callback( error, tweets, response );
-				resolve();
+				this.parseResponse( response )
+					.then( ( parsed_response ) => {
+						this.saveResponse( endpoint, parsed_response );
+						callback( error, tweets, response );
+						resolve();
+					})
+					.catch( ( parse_error ) => {
+						callback( [ error, parse_error ], tweets, response );
+						resolve();
+					});
 			});
 		}
 	});
