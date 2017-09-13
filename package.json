@@ -1,6 +1,6 @@
 {
   "name": "twitter-request-queue-node",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Smart request queue for Twitter rate-limiting",
   "main": "index.js",
   "dependencies": {
