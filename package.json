@@ -16,12 +16,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/daraeman/twitter-request-queue-node.git"
+    "url": "git+https://github.com/davidraedev/twitter-request-queue-node.git"
   },
   "author": "David Rae",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/daraeman/twitter-request-queue-node/issues"
+    "url": "https://github.com/davidraedev/twitter-request-queue-node/issues"
   },
-  "homepage": "https://github.com/daraeman/twitter-request-queue-node#readme"
+  "homepage": "https://github.com/davidraedev/twitter-request-queue-node#readme"
 }
